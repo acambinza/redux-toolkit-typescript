@@ -1,39 +1,29 @@
-import * as types from '../../types'
-
+import { createAsyncThunk } from '@reduxjs/toolkit';
 
 export type UserType = {
-    name:string,
-    avatar: string
+    name: string,
+    email: string
 }
 
+const apiUrl = 'https://jsonplaceholder.typicode.com/users';
 
+export const getUser = createAsyncThunk<UserType[], any, {}>(
+    'user/list',
+    async () => {
+        try {
+            console.log('get data')
+            const repo = await fetch(apiUrl, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
 
-export function getUserRequest(name: string) : {
-    type: string
-    payload: string
-} {
-    return  {
-        type: types.GET_USER_REQUEST,
-        payload: name
+            const result = await repo.json()
+            return result
+
+        } catch (error) {
+            return error;
+        }
     }
-}
-
-export function getUserSuccess(user: UserType) : {
-    type: string
-    payload: UserType
-} {
-    return  {
-        type: types.GET_USER_SUCCESS,
-        payload: user
-    }
-}
-
-export function getUserFailure(error:string ) : {
-    type: string
-    payload:string
-} {
-    return  {
-        type: types.GET_USER_REQUEST,
-        payload: error
-    }
-}
+)

@@ -1,33 +1,36 @@
 /* criação do estado global, que será a loja
     esse ficheiro vai ser importado no app.ts (raiz do sistema) como provider
 */
+import { configureStore } from '@reduxjs/toolkit'
+import { persistReducer, persistStore } from 'redux-persist';
 
-import {
-    createStore,
-    applyMiddleware,
-    Store,
-    AnyAction
-} from 'redux'
+import { createLogger } from 'redux-logger';
 
-import createSagaMiddleware from '@redux-saga/core';
+import thunk from 'redux-thunk';
+
+import storage from 'redux-persist/lib/storage';
 
 import rootReducer from './reducers';
-import rootSaga from './sagas';
 
-const sagaMiddleware =createSagaMiddleware();
+const logger = createLogger({
+    duration: true, // print the duration of each action?
+    timestamp: true
+});
 
+const persistConfig = {
+    key: 'root',
+    storage,
+    whitelist: ['']
+}
 
-const store:Store<unknown, AnyAction> = createStore(
-    rootReducer,
-    applyMiddleware(sagaMiddleware)
-);
+const persistedReducer = persistReducer(persistConfig, rootReducer)
 
+export const store = configureStore({
+    reducer: persistedReducer,
+    middleware: [logger, thunk]
+})
 
-sagaMiddleware.run(rootSaga)
-
-export default store;
+export const persisted = persistStore(store);
 
 export type RootState = ReturnType<typeof rootReducer>;
 export type AppDispatch = typeof store.dispatch;
-export * from './actions'
-export * from './types'

@@ -1,44 +1,60 @@
 import { useState } from 'react'
 
 import { useSelector, useDispatch, TypedUseSelectorHook } from 'react-redux'
-import { RootState, AppDispatch, getUserRequest } from './redux';
+import { RootState, AppDispatch } from './redux';
 
-export const userAppSelector: TypedUseSelectorHook<RootState> = useSelector
-export const userAppDispatcher = () => useDispatch<AppDispatch>()
+import { getUser } from '../src/redux/actions/user';
 
 function App() {
 
-  const userState = userAppSelector(state => state.userReduce);
-  const dispatch = userAppDispatcher()
+  const users = useSelector((state: RootState) => state.user);
+  const dispatch = useDispatch()
 
   const [name, setName] = useState('')
 
-  const { user, loading, error } = userState;
+  const { loading, user, error } = users;
 
-  console.log(user, loading, error)
 
-  const handleUser = () => {
-    dispatch(getUserRequest(name))
+  console.log('slicer', users)
+
+  const handleUser = async () => {
+    dispatch(getUser())
   }
+
+  /*
+  const CardUser = (user: any) => (
+    <>
+      <p>Teste</p>
+      <div>{user.name}</div>
+      <div><img src={user.avatar_url} /></div>
+    </>
+
+    {loading && <p>Loading...</p>}
+        {!loading &&
+          <>
+
+          </>
+        }
+        {user && !loading && <p>No users available!</p>}
+        {error && !loading && <p>{error}</p>}
+
+  )*/
 
   return (
     <>
-      <p>Teste com Redux e Redux Saga</p>
+      <p>Teste com Redux e Redux Toolkit</p>
       <p>
         <input type="text" value={name} onChange={(e) => setName(e.target.value)} />
         <button onClick={handleUser} disabled={!name.length}>Buscar</button>
       </p>
       <div>
         {loading && <p>Loading...</p>}
-        {user ?
+        {user &&
           (
-            <>
-              <label>{user.name}</label>
-              <img src={user.avatar_url} />
-            </>
-          ):''
+            user.map(user => user.name)
+          )
         }
-        {user && !loading && <p>No users available!</p>}
+        {!user && !loading && <p>No users available!</p>}
         {error && !loading && <p>{error}</p>}
       </div>
     </>
